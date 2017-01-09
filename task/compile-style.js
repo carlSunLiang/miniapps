@@ -1,6 +1,5 @@
 var path = require('path');
 var fs = require('fs');
-// var cache = require('lru-cache')(100);
 var cachePath = '.miniappcache';
 var hash = require('hash-sum');
 var util = require('./util');
@@ -31,7 +30,6 @@ function stylusCompiler(content, config, file, cb) {
 
 module.exports = {
     compile: function(lang, opath) {
-        // console.log(opath);
         var src = config.src;
         var dist = config.dist;
         var content = util.readFile(path.join(opath.dir, opath.base));
@@ -45,11 +43,8 @@ module.exports = {
             cache = Object.create(null);
         }
         var cacheKey = hash(filename + content);
-        // console.log(cacheKey);
         var output = cache[cacheKey];
-        // console.log(output);
         if (output) {
-            // console.log('cache found');
             util.writeFile(target, output);
             return;
         }
@@ -57,14 +52,12 @@ module.exports = {
         if (lang === 'sass') {
             sassCompiler(content, {}, path.join(opath.dir, opath.base), function cb(css) {
                 util.writeFile(target, css);
-                // console.log('cache setted');
                 cache[cacheKey] = css;
                 util.writeFile(cachePath, JSON.stringify(cache));
             });
         } else if (lang === 'stylus') {
             stylusCompiler(content, {}, path.join(opath.dir, opath.base), function cb(css) {
                 util.writeFile(target, css);
-                // console.log('cache setted');
                 cache[cacheKey] = css;
                 util.writeFile(cachePath, JSON.stringify(cache));
             });
